@@ -1,0 +1,46 @@
+DOM modifications to popup or tab in chrome extension instantly undone once script completes
+
+When clicking the BrowserAction, `test.html` opens in a new tab.  This works as expected.  Here is `background.js`:
+
+
+    chrome.browserAction.onClicked.addListener(function () {
+      chrome.tabs.create({
+        url: "./test.html"
+      });
+    });
+
+Here is `test.html`:
+
+
+    <!DOCTYPE HTML>
+     <head>
+     </head>
+     <body>
+      <form>
+       <fieldset id="top">
+        <button id="clickme">click me</button>
+       </fieldset>
+       <fieldset id="bottom">
+       <fieldset>
+      </form>
+      <script src="test.js"></script>
+     </body>
+    </html>
+
+`test.html` invokes `test.js`:
+
+
+    console.log("checking in");
+
+    document.getElementById("clickme").onclick = function () {
+     var newButton = document.createElement("button");
+     newButton.textContent = "now click me";
+     newButton.onclick = function () {
+      document.getElementById("bottom").style.backgroundColor = "pink";
+     };
+     document.getElementById("bottom").appendChild(newButton);
+     alert("I'm an alert. If you comment me out, the tab will revert to its unmodified state, probably before you even see the second button.");
+    };
+
+The new button appears, but disappears once the alert is cleared.  I find that DOM modifications made to tabs or popups opened in an extension always revert to their original state as soon as the script completes.  Is there a way to get one of these to hold still?
+
